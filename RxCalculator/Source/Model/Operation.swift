@@ -8,10 +8,16 @@
 
 import Foundation
 
-enum Operation {
-    case add
-    case subtract
-    case multiply
-    case equals
+enum Operation: String {
+    case add = "+"
+    case subtract = "-"
+    case multiply = "*"
+    case equals = "="
     case clear
+}
+
+extension Operation: CustomStringConvertible {
+    var description: String {
+        return rawValue
+    }
 }

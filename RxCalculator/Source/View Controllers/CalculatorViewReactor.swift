@@ -37,25 +37,9 @@ final class CalculatorViewReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .apply(let mathComponent):
-            let shouldEvaluate = { (components: [MathComponent]) -> Bool in
-                switch components.last {
-                case .some(.operation(.equals)):
-                    return true
-                default:
-                    return false
-                }
-            }
-            
             return Observable.of(mathComponent)
-                .scan([MathComponent]()) { (accumulated, new) -> [MathComponent] in
-                    var accumulated = accumulated
-                    accumulated.append(new)
-                    return accumulated
-                }
-                .filter { shouldEvaluate($0) }
-                .map { [weak self] in
-                    self?.provider.mathService.evaluate($0) ?? 0
-                }.map { Mutation.setDisplayString(String(describing: $0)) }
+                .map { [weak self] in self?.provider.mathService.evaluate($0) ?? "" }
+                .map { Mutation.setDisplayString($0) }
         }
         
     }

@@ -17,6 +17,10 @@ final class CalculatorViewController: BaseViewController, View {
 
     typealias Reactor = CalculatorViewReactor
     
+    struct Font {
+       static let display = UIFont.systemFont(ofSize: 28)
+    }
+    
     private let zeroButton: UIButton = CalculatorViewController.createButton(title: "0")
     private let oneButton: UIButton = CalculatorViewController.createButton(title: "1")
     private let twoButton: UIButton = CalculatorViewController.createButton(title: "2")
@@ -57,7 +61,8 @@ final class CalculatorViewController: BaseViewController, View {
     private let displayLabel: UILabel = CalculatorViewController.createDisplayLabel()
     private static func createDisplayLabel() -> UILabel {
         let label = UILabel()
-        label.backgroundColor = .green
+        label.textAlignment = .right
+        label.font = Font.display
         return label
     }
     
@@ -67,6 +72,7 @@ final class CalculatorViewController: BaseViewController, View {
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.black.cgColor
         button.setTitle(title, for: .normal)
+        button.titleLabel?.font = Font.display
         return button
     }
     
@@ -175,7 +181,8 @@ final class CalculatorViewController: BaseViewController, View {
         displayLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             $0.height.equalToSuperview().multipliedBy(0.25)
-            $0.width.leading.trailing.equalToSuperview()
+            $0.leading.equalToSuperview()
+            $0.trailing.equalTo(-14)
         }
         contentContainerView.snp.makeConstraints {
             $0.top.equalTo(displayLabel.snp.bottom)

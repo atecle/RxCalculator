@@ -12,3 +12,17 @@ enum MathComponent {
     case number(Int)
     case operation(Operation)
 }
+
+extension MathComponent: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .number(let x):
+            return "\(x)"
+        case .operation(let operation):
+            return "\(operation)"
+        }
+    }
+    
+    
+    
+}
