@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Expression
 import RxSwift
 
 protocol MathBrainServiceType {
@@ -39,13 +40,17 @@ final class MathBrainService: MathBrainServiceType {
     
     private func doMath() -> String {
         let expressionString = input.reduce("") { "\($0)" + "\($1)"}
-        let expression = NSExpression(format: expressionString)
-        guard let value = expression.expressionValue(with: nil, context: nil) as? Int else {
-            return ""
+        let expression = Expression(expressionString)
+        
+        let display: String
+        if let value = try? expression.evaluate() {
+            display = String(describing: Int(value))
+        } else {
+            display = "Error"
         }
         
         input.removeAll()
-        return String(describing: value)
+        return display
     }
     
     private func lastDigitsEntered(_ mathComponents: [MathComponent]) -> String {

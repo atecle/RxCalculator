@@ -1,4 +1,5 @@
 PODS:
+  - Expression (0.12.9)
   - ReactorKit (1.1.0):
     - RxSwift (>= 4.0.0)
   - RxCocoa (4.1.2):
@@ -7,17 +8,19 @@ PODS:
   - SnapKit (4.0.0)
 
 DEPENDENCIES:
+  - Expression (~> 0.12)
   - ReactorKit
   - RxCocoa
   - RxSwift
   - SnapKit
 
 SPEC CHECKSUMS:
+  Expression: 009720cde3259d5e39dc18f1d32504fa136b4a09
   ReactorKit: 26470a9eff5094fae909a30af0be7cd0cf8a182d
   RxCocoa: d88ba0f1f6abf040011a9eb4b539324fc426843a
   RxSwift: e49536837d9901277638493ea537394d4b55f570
   SnapKit: a42d492c16e80209130a3379f73596c3454b7694
 
-PODFILE CHECKSUM: 32ee0a17e42d871d4fc41eff9fe216516d10349d
+PODFILE CHECKSUM: 7d67e55626ace557e3e24284016363c1c01055dc
 
 COCOAPODS: 1.4.0
