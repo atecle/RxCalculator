@@ -14,6 +14,7 @@ import RxSwift
 final class CalculatorViewReactor: Reactor {
     
     enum Action {
+        case load
         case apply(MathComponent)
     }
     
@@ -36,6 +37,8 @@ final class CalculatorViewReactor: Reactor {
     // Action -> Mutation
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        case .load:
+            return Observable.of(Mutation.setDisplayString("0"))
         case .apply(let mathComponent):
             return Observable.of(mathComponent)
                 .map { [weak self] in self?.provider.mathService.evaluate($0) ?? "" }

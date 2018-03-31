@@ -5,6 +5,7 @@
 //  Created by adam tecle on 3/25/18.
 //  Copyright © 2018 Adam Tecle. All rights reserved.
 //
+//  attribution: https://github.com/devxoul/RxTodo/blob/master/RxTodo/Sources/ViewControllers/BaseViewController.swift
 
 import UIKit
 

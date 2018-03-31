@@ -15,4 +15,5 @@ target 'RxCalculator' do
   reactive_pods
 
   pod 'SnapKit'
+  pod 'DDMathParser'
 end

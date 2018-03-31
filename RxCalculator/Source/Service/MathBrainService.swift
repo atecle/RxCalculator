@@ -11,21 +11,11 @@ import Foundation
 import RxSwift
 
 protocol MathBrainServiceType {
-    
     func evaluate(_ mathComponent: MathComponent) -> String
 }
 
 final class MathBrainService: MathBrainServiceType {
-    
-    let shouldEvaluate = { (components: [MathComponent]) -> Bool in
-        switch components.last {
-        case .some(.operation(.equals)):
-            return true
-        default:
-            return false
-        }
-    }
-    
+        
     var input: [MathComponent] = []
     
     func evaluate(_ mathComponent: MathComponent) -> String {
@@ -33,12 +23,16 @@ final class MathBrainService: MathBrainServiceType {
         case .number(_):
             input.append(mathComponent)
             return lastDigitsEntered(input)
-        case .operation(let op):
-            if op == .equals {
-               return doMath()
-            } else {
+        case .operation(let operation):
+            switch operation {
+            case .equals:
+                return doMath()
+            case .clear:
+                input.removeAll()
+                return "0"
+            default:
                 input.append(mathComponent)
-                return "\(op)"
+                return "\(operation)"
             }
         }
     }
@@ -50,7 +44,7 @@ final class MathBrainService: MathBrainServiceType {
             return ""
         }
         
-        input = []
+        input.removeAll()
         return String(describing: value)
     }
     

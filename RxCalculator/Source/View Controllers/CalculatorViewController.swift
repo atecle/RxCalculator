@@ -18,7 +18,8 @@ final class CalculatorViewController: BaseViewController, View {
     typealias Reactor = CalculatorViewReactor
     
     struct Font {
-       static let display = UIFont.systemFont(ofSize: 28)
+       static let display = UIFont.systemFont(ofSize: 40)
+       static let displayLarge = UIFont.systemFont(ofSize: 60)
     }
     
     private let zeroButton: UIButton = CalculatorViewController.createButton(title: "0")
@@ -32,46 +33,50 @@ final class CalculatorViewController: BaseViewController, View {
     private let eightButton: UIButton = CalculatorViewController.createButton(title: "8")
     private let nineButton: UIButton = CalculatorViewController.createButton(title: "9")
     
-    private let addButton: UIButton = CalculatorViewController.createButton(title: "+")
-    private let subtractButton: UIButton = CalculatorViewController.createButton(title: "-")
-    private let multiplyButton: UIButton = CalculatorViewController.createButton(title: "*")
-    private let equalsButton: UIButton = CalculatorViewController.createButton(title: "=")
+    private let clearButton: UIButton = CalculatorViewController.createButton(title: "C", backgroundColor: .orange)
+    private let addButton: UIButton = CalculatorViewController.createButton(title: "+", backgroundColor: .orange)
+    private let subtractButton: UIButton = CalculatorViewController.createButton(title: "-", backgroundColor: .orange)
+    private let multiplyButton: UIButton = CalculatorViewController.createButton(title: "*", backgroundColor: .orange)
+    private let equalsButton: UIButton = CalculatorViewController.createButton(title: "=", backgroundColor: .orange)
+    private lazy var buttons: [UIButton] = {
+        return [zeroButton, oneButton, twoButton, threeButton,
+                fourButton, fiveButton, sixButton, eightButton,
+                nineButton, multiplyButton, subtractButton, equalsButton]
+    }()
     
     private let contentContainerView: UIView = CalculatorViewController.createContentContainerView()
     private static func createContentContainerView() -> UIView {
         let view = UIView()
-        view.backgroundColor = UIColor.orange.withAlphaComponent(0.5)
         return view
     }
     
     private let operatorContainerView: UIView = CalculatorViewController.createOperatorContainerView()
     private static func createOperatorContainerView() -> UIView {
         let view = UIView()
-        view.backgroundColor = UIColor.blue.withAlphaComponent(0.5)
         return view
     }
     
     private let numberContainerView: UIView = CalculatorViewController.createNumberContainerView()
     private static func createNumberContainerView() -> UIView {
         let view = UIView()
-        view.backgroundColor = UIColor.yellow.withAlphaComponent(0.5)
         return view
     }
     
     private let displayLabel: UILabel = CalculatorViewController.createDisplayLabel()
     private static func createDisplayLabel() -> UILabel {
         let label = UILabel()
+        label.textColor = .white
         label.textAlignment = .right
-        label.font = Font.display
+        label.font = Font.displayLarge
         return label
     }
     
-    private static func createButton(title: String) -> UIButton {
+    private static func createButton(title: String, backgroundColor: UIColor? = nil) -> UIButton {
         let button = UIButton(type: .system)
-        button.setTitleColor(UIColor.black, for: .normal)
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.black.cgColor
+        button.setTitleColor(UIColor.white, for: .normal)
         button.setTitle(title, for: .normal)
+        button.backgroundColor = backgroundColor
+        button.clipsToBounds = true
         button.titleLabel?.font = Font.display
         return button
     }
@@ -82,16 +87,22 @@ final class CalculatorViewController: BaseViewController, View {
         setupView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
     required convenience init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-
     func bind(reactor: CalculatorViewController.Reactor) {
+        /// Send load action on start up
+        Observable.just(Reactor.Action.load)
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
+        /// Bind button taps
         zeroButton.rx.tap
             .map { .apply(.number(0)) }
             .bind(to: reactor.action)
@@ -132,6 +143,10 @@ final class CalculatorViewController: BaseViewController, View {
             .map { .apply(.number(9)) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        clearButton.rx.tap
+            .map { .apply(.operation(.clear)) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         addButton.rx.tap
             .map { .apply(.operation(.add)) }
             .bind(to: reactor.action)
@@ -149,6 +164,7 @@ final class CalculatorViewController: BaseViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        /// Subscribe to changes in state and modify view
         reactor.state.asObservable()
             .map { $0.displayString }
             .subscribe(onNext: { [weak self] in
@@ -157,10 +173,13 @@ final class CalculatorViewController: BaseViewController, View {
     }
     
     private func setupView() {
+        view.backgroundColor = .black
         view.addSubview(displayLabel)
         view.addSubview(contentContainerView)
+        
         contentContainerView.addSubview(operatorContainerView)
         contentContainerView.addSubview(numberContainerView)
+        
         numberContainerView.addSubview(zeroButton)
         numberContainerView.addSubview(oneButton)
         numberContainerView.addSubview(twoButton)
@@ -171,6 +190,7 @@ final class CalculatorViewController: BaseViewController, View {
         numberContainerView.addSubview(sevenButton)
         numberContainerView.addSubview(eightButton)
         numberContainerView.addSubview(nineButton)
+        operatorContainerView.addSubview(clearButton)
         operatorContainerView.addSubview(addButton)
         operatorContainerView.addSubview(subtractButton)
         operatorContainerView.addSubview(multiplyButton)
@@ -255,26 +275,30 @@ final class CalculatorViewController: BaseViewController, View {
             $0.leading.trailing.bottom.width.equalToSuperview()
         }
         
-        addButton.snp.makeConstraints {
+        clearButton.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
-            $0.height.equalToSuperview().multipliedBy(0.25)
+            $0.height.equalToSuperview().multipliedBy(0.2)
+        }
+        addButton.snp.makeConstraints {
+            $0.top.equalTo(clearButton.snp.bottom)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalToSuperview().multipliedBy(0.2)
         }
         subtractButton.snp.makeConstraints {
             $0.top.equalTo(addButton.snp.bottom)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalToSuperview().multipliedBy(0.25)
+            $0.height.equalToSuperview().multipliedBy(0.2)
         }
         multiplyButton.snp.makeConstraints {
             $0.top.equalTo(subtractButton.snp.bottom)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalToSuperview().multipliedBy(0.25)
+            $0.height.equalToSuperview().multipliedBy(0.2)
         }
         equalsButton.snp.makeConstraints {
             $0.top.equalTo(multiplyButton.snp.bottom)
             $0.leading.trailing.equalToSuperview()
-            $0.height.equalToSuperview().multipliedBy(0.25)
+            $0.height.equalToSuperview().multipliedBy(0.2)
         }
-        
     }
 
 }
